@@ -1,0 +1,136 @@
+---
+title: "GBIF Occurrences"
+format: html
+editor: visual
+execute: 
+  warning: false
+  message: false
+---
+
+```{r}
+library(rgbif)
+library(tidyverse)
+library(here)
+library(sf)
+```
+
+What is the scientific name of the species for which you want to find occurrences?
+
+```{r}
+scientific_name <- "Fratercula arctica"
+```
+
+We give this to GBIF and let it look through its records to find the unique species key for this species. If it cannot find it, check if you have spelled the scientific name correctly.
+
+```{r}
+species_key <-name_backbone(scientific_name) |>
+  select(speciesKey) |>
+  pull()
+```
+
+Alternatively, you can find the species key on GBIF's site in various ways, for example by doing an occurrence search then looking at the final digits of the url of the species page you end up on. I did a search on puffins *Fratercula arctica* and ended up on (this page)[https://www.gbif.org/species/2481353] for them. The url of that page is https://www.gbif.org/species/2481353 and the species ID in GBIF for puffins is 2481353.
+
+```{r}
+
+```
+
+
+```{r}
+gbif_download <- occ_download(pred("speciesKey",species_key),
+                              pred_default(),
+                              pred_gte("year",2000),
+                              pred("country","FR"),
+                              user="mbh038",
+                              pwd = "paFzaw-retka0-fabwod",
+                              email = "mbh038@gmail.com",
+                              format = "SIMPLE_CSV")
+```
+
+```{r}
+ occ_download_wait(gbif_download)
+```
+
+
+```{r}
+ download_df <- occ_download_get(gbif_download, overwrite = TRUE) |>
+    occ_download_import()
+```
+The data are now in your R session as a data frame called `download_df`. Scroll across the columns and see what you have got.
+
+## Export as csv file
+
+This will store the data as a csv file in your project folder, in the subfolder called "output",  under the scientific name of the species you have looked for.
+
+Note that we can also store the search data as a shapefile or GeoPackage for direct inclusion in a GIS application.
+
+```{r}
+write_csv(download_df,here("output",str_c(scientific_name,".csv")))
+```
+
+
+
+## Open the csv file in Excel
+
+Skip this section if you don't want to do this. You don't need to.
+
+How do I open tab-delimited CSV files downloaded from GBIF.org in Excel?
+
+If you're using Excel on a Mac
+
+* Open Excel
+* Create a new empty spreadsheet (File → New)
+* Import text file (Data → Get Data → From File → From Text/CSV)
+* Select the downloaded CSV file (e.g. 0000822-180131172636756.csv)
+* Select "Comma" as Delimiter and "Unicode (UTF-8)" as File Origin
+* Click Load
+
+If you're using Excel in Windows
+
+* Open Excel
+* Create a new empty spreadsheet (File → New)
+* Click the Data tab
+* From "Get External Data", click From text
+* Select the downloaded CSV file (e.g. 0000822-180131172636756.csv)
+* Click Import
+* Select "Delimited" as Data Type and "Unicode (UTF-8)" as File Origin
+* Click Finish
+* Click OK to import data into current sheet
+
+The above procedure also works for occurrence.txt files from Darwin Core Archives.
+
+
+## Convert to spatial object in WGS84
+
+We can use the `sf` package to convert the data frame we have just created in to a spatial object, that we can then write out as a Geopackage or a shapefile, for inclusion in a GIS as a vector layer.
+
+We need to tell it which columns are the lon and lat. The default in GBIF downloads is that they are called `decimalLongitude` and `decimalLatitude`, so we will use those names. Amend the code below if the names are any different in your download, for some reason.
+
+```{r}
+download_sf <- download_df |>
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) |>
+  st_cast("POINT")
+download_sf
+```
+### Save as a geopackage or shapefile
+
+The spatial object in R that we have created from the GBIF download can be used directly in R for GIS mapping, but can also be saved to disc as a shapefile or GeoPackage (my preferred option) for subsequent plotting in a dedicated GIS application such as QGIS.
+
+#### Save as a GeoPackage 
+
+For this format we create a subfolder within the output folder, named after the scientific name of the species, and put all the component files of the shapefile we create in there.
+
+```{r, warning = FALSE, message = FALSE}
+ifelse(!dir.exists(paste0(getwd(),"/output/",scientific_name)), dir.create(paste0(getwd(),"/output/",scientific_name)),"Folder exists already")
+filepath<-here("output",scientific_name,paste0(scientific_name,".shp")) 
+st_write(download_sf, filepath, append = FALSE)
+```
+
+#### Save as a Geopackage
+
+```{r}
+filepath<-here("output",paste0(scientific_name,".gpkg"))
+st_write(download_sf, filepath, append = FALSE)
+```
+
+
+

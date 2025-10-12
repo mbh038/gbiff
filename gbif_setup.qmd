@@ -1,0 +1,10 @@
+---
+title: "GBIF set-up"
+format: html
+editor: visual
+---
+
+```{r}
+#install.packages("usethis")
+usethis::edit_r_environ()
+```
