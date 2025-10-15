@@ -1,11 +1,19 @@
 ---
 title: "GBIF Occurrences"
+author: "Michael Hunt"
+date: "12/10/2025"
 format: html
 editor: visual
 execute: 
   warning: false
   message: false
 ---
+
+You can use this script to search for a taxon on GBIF and then download the data directly into R for subsequent analysis there. You an also save the data as a csv file for later analysis or as a Shapefile or GeoPackage for inclusion as a vector point layer in a GIS application.
+
+## Preliminary.
+
+You need to have registered with GBIF manually ie not using your Google, Apple , ORCID or similar ID. For this script to work, you need to know your GBIF username and password, and the email address you use to communicate with GBIF. All of these can be found on your GBIF profile.
 
 ```{r}
 library(rgbif)
@@ -14,6 +22,7 @@ library(here)
 library(sf)
 ```
 
+## Step One
 What is the scientific name of the species for which you want to find occurrences?
 
 ```{r}
@@ -30,21 +39,22 @@ species_key <-name_backbone(scientific_name) |>
 
 Alternatively, you can find the species key on GBIF's site in various ways, for example by doing an occurrence search then looking at the final digits of the url of the species page you end up on. I did a search on puffins *Fratercula arctica* and ended up on (this page)[https://www.gbif.org/species/2481353] for them. The url of that page is https://www.gbif.org/species/2481353 and the species ID in GBIF for puffins is 2481353.
 
-```{r}
+## Step Two: Search on GBIF for occurrences of the selected taxon
 
-```
-
+Be as selective as you can in order to avoid getting  huge downloads. You can selct by date, area, country - many things.
 
 ```{r}
 gbif_download <- occ_download(pred("speciesKey",species_key),
                               pred_default(),
                               pred_gte("year",2000),
-                              pred("country","FR"),
-                              user="mbh038",
-                              pwd = "paFzaw-retka0-fabwod",
-                              email = "mbh038@gmail.com",
+                              pred("country","FR"), # use a two letter country ID
+                              # user="your GBIF username",
+                              # pwd = "your GBIF password",
+                              # email = "the email you have used on your GBIF profile",
                               format = "SIMPLE_CSV")
 ```
+
+This chunk will tell you when the download is done. That might take a few minutes, or even longer for large downloads. Most downloads are complete within 15 minutes.
 
 ```{r}
  occ_download_wait(gbif_download)
@@ -115,7 +125,7 @@ download_sf
 
 The spatial object in R that we have created from the GBIF download can be used directly in R for GIS mapping, but can also be saved to disc as a shapefile or GeoPackage (my preferred option) for subsequent plotting in a dedicated GIS application such as QGIS.
 
-#### Save as a GeoPackage 
+#### Save as a Shapefile 
 
 For this format we create a subfolder within the output folder, named after the scientific name of the species, and put all the component files of the shapefile we create in there.
 
