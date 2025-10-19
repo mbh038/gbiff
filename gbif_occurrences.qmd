@@ -9,24 +9,29 @@ execute:
   message: false
 ---
 
-You can use this script to search for a taxon on GBIF and then download the data directly into R for subsequent analysis there. You an also save the data as a csv file for later analysis or as a Shapefile or GeoPackage for inclusion as a vector point layer in a GIS application.
+You can use this script to search for a taxon on [GBIF](https://www.gbif.org) and then download the data directly into R for subsequent analysis here in this script. You can also save the data as a csv file for later analysis or as a Shapefile or GeoPackage for inclusion as a vector point layer in a GIS application. Finally, the script generates a basic static map and a basic dynamic map
 
 ## Preliminary.
 
 You need to have registered with GBIF manually ie not using your Google, Apple , ORCID or similar ID. For this script to work, you need to know your GBIF username and password, and the email address you use to communicate with GBIF. All of these can be found on your GBIF profile.
+
+In the following, work from the top downwards, implementing each code chunk in sequence.
 
 ```{r}
 library(rgbif)
 library(tidyverse)
 library(here)
 library(sf)
+library(leaflet)
+library(tmap)
 ```
 
 ## Step One
+
 What is the scientific name of the species for which you want to find occurrences?
 
 ```{r}
-scientific_name <- "Fratercula arctica"
+scientific_name <- "Cetorhinus maximus"
 ```
 
 We give this to GBIF and let it look through its records to find the unique species key for this species. If it cannot find it, check if you have spelled the scientific name correctly.
@@ -37,17 +42,17 @@ species_key <-name_backbone(scientific_name) |>
   pull()
 ```
 
-Alternatively, you can find the species key on GBIF's site in various ways, for example by doing an occurrence search then looking at the final digits of the url of the species page you end up on. I did a search on puffins *Fratercula arctica* and ended up on (this page)[https://www.gbif.org/species/2481353] for them. The url of that page is https://www.gbif.org/species/2481353 and the species ID in GBIF for puffins is 2481353.
+Alternatively, you can find the species key on GBIF's site in various ways, for example by doing an occurrence search then looking at the final digits of the url of the species page you end up on. I did a search on puffins *Fratercula arctica* and ended up on [this page](https://www.gbif.org/species/2481353) for them. The url of that page is `https://www.gbif.org/species/2481353` and the species ID in GBIF for puffins is 2481353.
 
 ## Step Two: Search on GBIF for occurrences of the selected taxon
 
-Be as selective as you can in order to avoid getting  huge downloads. You can selct by date, area, country - many things.
+Be as selective as you can in order to avoid getting huge downloads (there are over 3 billion records on GBIF in total!). You can select by date, area, country - many things. For help on the available keys and `pred()` functions, type `?pred` in the console pane.
 
-```{r}
+```{r, cache = TRUE}
 gbif_download <- occ_download(pred("speciesKey",species_key),
                               pred_default(),
-                              pred_gte("year",2000),
-                              pred("country","FR"), # use a two letter country ID
+                              pred_gte("year",1900), # try also gt, lt, lte etc
+                              pred_in("country",c("IE","GB")), # use a two letter country ID or combination of IDs
                               # user="your GBIF username",
                               # pwd = "your GBIF password",
                               # email = "the email you have used on your GBIF profile",
@@ -56,64 +61,67 @@ gbif_download <- occ_download(pred("speciesKey",species_key),
 
 This chunk will tell you when the download is done. That might take a few minutes, or even longer for large downloads. Most downloads are complete within 15 minutes.
 
-```{r}
+```{r, cache = TRUE}
  occ_download_wait(gbif_download)
 ```
 
+When the download is ready, read the data into a data frame and writee it out into a .csv file. You can upload this into a spreadsheet if you like, using the guidance given below.
 
 ```{r}
- download_df <- occ_download_get(gbif_download, overwrite = TRUE) |>
+# create folder <scientific name> in /output
+new_dir_path<-here("output",scientific_name)
+dir.create(new_dir_path)
+
+download_df <- occ_download_get(gbif_download, overwrite = TRUE) |>
     occ_download_import()
+
+# remove the downloaded zip file
+ download_key <- occ_download_meta(gbif_download)$key
+ file.remove(here(paste0(download_key,".zip")))
+ 
+# save df as csv file in output/<scientific name>
+filepath <- here("output",scientific_name, str_c(scientific_name,".csv"))
+write_csv(download_df,filepath)
 ```
+
 The data are now in your R session as a data frame called `download_df`. Scroll across the columns and see what you have got.
 
-## Export as csv file
+### Open the csv file in Excel
 
-This will store the data as a csv file in your project folder, in the subfolder called "output",  under the scientific name of the species you have looked for.
-
-Note that we can also store the search data as a shapefile or GeoPackage for direct inclusion in a GIS application.
-
-```{r}
-write_csv(download_df,here("output",str_c(scientific_name,".csv")))
-```
-
-
-
-## Open the csv file in Excel
-
-Skip this section if you don't want to do this. You don't need to.
+Skip this section if you don't want to do this.
 
 How do I open tab-delimited CSV files downloaded from GBIF.org in Excel?
 
 If you're using Excel on a Mac
 
-* Open Excel
-* Create a new empty spreadsheet (File → New)
-* Import text file (Data → Get Data → From File → From Text/CSV)
-* Select the downloaded CSV file (e.g. 0000822-180131172636756.csv)
-* Select "Comma" as Delimiter and "Unicode (UTF-8)" as File Origin
-* Click Load
+-   Open Excel
+-   Create a new empty spreadsheet (File → New)
+-   Import text file (Data → Get Data → From File → From Text/CSV)
+-   Select the downloaded CSV file (e.g. 0000822-180131172636756.csv)
+-   Select "Comma" as Delimiter and "Unicode (UTF-8)" as File Origin
+-   Click Load
 
 If you're using Excel in Windows
 
-* Open Excel
-* Create a new empty spreadsheet (File → New)
-* Click the Data tab
-* From "Get External Data", click From text
-* Select the downloaded CSV file (e.g. 0000822-180131172636756.csv)
-* Click Import
-* Select "Delimited" as Data Type and "Unicode (UTF-8)" as File Origin
-* Click Finish
-* Click OK to import data into current sheet
+-   Open Excel
+-   Create a new empty spreadsheet (File → New)
+-   Click the Data tab
+-   From "Get External Data", click From text
+-   Select the downloaded CSV file (e.g. 0000822-180131172636756.csv)
+-   Click Import
+-   Select "Delimited" as Data Type and "Unicode (UTF-8)" as File Origin
+-   Click Finish
+-   Click OK to import data into current sheet
 
 The above procedure also works for occurrence.txt files from Darwin Core Archives.
 
+## Convert data frame to spatial object in WGS84
 
-## Convert to spatial object in WGS84
-
-We can use the `sf` package to convert the data frame we have just created in to a spatial object, that we can then write out as a Geopackage or a shapefile, for inclusion in a GIS as a vector layer.
+We can use the `sf` package to convert the data frame we have just created into a spatial object, that we can then write out as a Geopackage or a shapefile, for inclusion in a GIS as a vector layer.
 
 We need to tell it which columns are the lon and lat. The default in GBIF downloads is that they are called `decimalLongitude` and `decimalLatitude`, so we will use those names. Amend the code below if the names are any different in your download, for some reason.
+
+In this code chunk, we set the CRS of the spatial data object `download_sf` to be 4326, ie WGS84, which is a geographic CRS, with positions and distance measured in degrees. Further down the line, this may not be what you want...
 
 ```{r}
 download_sf <- download_df |>
@@ -121,26 +129,67 @@ download_sf <- download_df |>
   st_cast("POINT")
 download_sf
 ```
+
 ### Save as a geopackage or shapefile
 
 The spatial object in R that we have created from the GBIF download can be used directly in R for GIS mapping, but can also be saved to disc as a shapefile or GeoPackage (my preferred option) for subsequent plotting in a dedicated GIS application such as QGIS.
 
-#### Save as a Shapefile 
+#### Save as a Shapefile
 
-For this format we create a subfolder within the output folder, named after the scientific name of the species, and put all the component files of the shapefile we create in there.
+For this format we create a sub-folder within the output folder, named after the scientific name of the species, and put all the component files of the shapefile we create in there, collected together within another subfolder called <scientific_name_shp>.
 
 ```{r, warning = FALSE, message = FALSE}
-ifelse(!dir.exists(paste0(getwd(),"/output/",scientific_name)), dir.create(paste0(getwd(),"/output/",scientific_name)),"Folder exists already")
-filepath<-here("output",scientific_name,paste0(scientific_name,".shp")) 
+ifelse(!dir.exists(paste0(getwd(),"/output/",scientific_name,"/",paste0(scientific_name,"_shp"))),
+       dir.create(paste0(getwd(),"/output/",scientific_name,"/",paste0(scientific_name,"_shp"))), # create a new sub folder if one didn't exist already
+       "Folder exists already") # don't do this if it does.
+       
+filepath<-here("output",scientific_name,paste0(scientific_name,"_shp"),paste0(scientific_name,".shp")) 
 st_write(download_sf, filepath, append = FALSE)
 ```
 
 #### Save as a Geopackage
 
+We save this into the subfolder output/<scientific name>
 ```{r}
-filepath<-here("output",paste0(scientific_name,".gpkg"))
+filepath<-here("output",scientific_name, paste0(scientific_name,".gpkg"))
 st_write(download_sf, filepath, append = FALSE)
 ```
 
+## Map the occurrence data
 
+The mapping code presented here just scratches the surface of what you can do - pretty much all of GIS can be done in R.
+
+### Static map using `tmap`
+```{r}
+# make some bbox magic
+bbox_new <- st_bbox(download_sf) # current bounding box
+xrange <- bbox_new$xmax - bbox_new$xmin # range of x values
+yrange <- bbox_new$ymax - bbox_new$ymin # range of y values
+bbox_new[3] <- bbox_new[3] + (0.25 * xrange) # xmax - right
+bbox_new[4] <- bbox_new[4] + (0.2 * yrange) # ymax - top
+
+bbox_new <- bbox_new |>  # take the bounding box ...
+  st_as_sfc() # ... and make it a sf polygon
+
+# tmap with 2 layers
+
+tm_shape(download_sf, bbox = bbox_new)+
+  tm_basemap() +
+  tm_dots(size = .1, col = "species") +
+  tm_compass(position = c("left", "top"))+
+  tm_scalebar(position = c("right", "top"))+ 
+  tm_borders(fill_alpha=1, lwd = 1, col = "black")+
+  tm_legend(legend.format = list(text.separator= "a")) +
+  tm_layout(legend.position = c("right", "top"),
+            frame = FALSE) +
+  tm_legend(show = FALSE)
+```
+
+### Dynamic map using `leaflet`
+```{r}
+m <- leaflet(download_df) |>
+  addTiles() |>
+  addCircleMarkers(~decimalLongitude, ~decimalLatitude, label = ~basisOfRecord)
+m
+```
 
