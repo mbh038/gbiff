@@ -9,21 +9,24 @@ execute:
   message: false
 ---
 
-You can use this script to search for a taxon on [GBIF](https://www.gbif.org) and then download the data directly into R for subsequent analysis here in this script. You can also save the data as a csv file for later analysis or as a Shapefile or GeoPackage for inclusion as a vector point layer in a GIS application. Finally, the script generates a basic static map and a basic dynamic map
+You can use this script to search for occurrences of a taxon on [GBIF](https://www.gbif.org) and then download the data directly into R for subsequent analysis here in this script. You can also save the data as a csv file for later analysis or as a Shapefile or GeoPackage for inclusion as a vector point layer in a GIS application. Finally, the script generates a basic static map and a basic dynamic map
 
 ## Preliminary.
 
-You need to have registered with GBIF manually ie not using your Google, Apple , ORCID or similar ID. For this script to work, you need to know your GBIF username and password, and the email address you use to communicate with GBIF. All of these can be found on your GBIF profile.
+You need to have registered with GBIF manually ie not using your Google, Apple , ORCID or similar ID. For this script to work, you need to know your GBIF username and password, and the email address you use to communicate with GBIF. All of these can be found on your GBIF profile. 
+
+To avoid having to have these personal details hard coded into this script, you can run this [little file](here(gbif_setup.qmd)). This will ask you to enter them into a hidden .Renviron file  (which you then save and close, never to open it again) from where they can be retrieved by GBIF. All you need to do then is restart R and you should be then able o get occurrence data from GBIF without having to have them in this script.
 
 In the following, work from the top downwards, implementing each code chunk in sequence.
 
+### Load packages
 ```{r}
 library(rgbif)
 library(tidyverse)
 library(here)
-library(sf)
-library(leaflet)
-library(tmap)
+library(sf) # for vector spatial data
+library(leaflet) # for dynamic mapping
+library(tmap) # for static mapping
 ```
 
 ## Step One
@@ -46,13 +49,21 @@ Alternatively, you can find the species key on GBIF's site in various ways, for 
 
 ## Step Two: Search on GBIF for occurrences of the selected taxon
 
-Be as selective as you can in order to avoid getting huge downloads (there are over 3 billion records on GBIF in total!). You can select by date, area, country - many things. For help on the available keys and `pred()` functions, type `?pred` in the console pane.
+Be as selective as you can in order to avoid getting huge downloads (there are over 3 billion records on GBIF in total!). You can select by date, area, country - many things, using one of several `pred()` functions. For help on the available keys and `pred()` functions, type `?pred` in the console pane.
+
+
 
 ```{r, cache = TRUE}
 gbif_download <- occ_download(pred("speciesKey",species_key),
                               pred_default(),
                               pred_gte("year",1900), # try also gt, lt, lte etc
-                              pred_in("country",c("IE","GB")), # use a two letter country ID or combination of IDs
+                              
+# use a two letter country ID or combination of IDs
+                              pred_in("country",c("IE","GB")), 
+
+# you can omit the following lines, as I have, if you have set up your .Renviron file.
+# If you have not done that, uncomment the following three lines and add the details required.
+
                               # user="your GBIF username",
                               # pwd = "your GBIF password",
                               # email = "the email you have used on your GBIF profile",
@@ -65,7 +76,7 @@ This chunk will tell you when the download is done. That might take a few minute
  occ_download_wait(gbif_download)
 ```
 
-When the download is ready, read the data into a data frame and writee it out into a .csv file. You can upload this into a spreadsheet if you like, using the guidance given below.
+When the download is ready, read the data into a data frame and write it out into a `.csv` file. You can upload this into a spreadsheet if you like, using the guidance given below.
 
 ```{r}
 # create folder <scientific name> in /output
@@ -113,13 +124,11 @@ If you're using Excel in Windows
 -   Click Finish
 -   Click OK to import data into current sheet
 
-The above procedure also works for occurrence.txt files from Darwin Core Archives.
-
 ## Convert data frame to spatial object in WGS84
 
-We can use the `sf` package to convert the data frame we have just created into a spatial object, that we can then write out as a Geopackage or a shapefile, for inclusion in a GIS as a vector layer.
+We can use functions from the `sf` package to convert the data frame we have just created into a spatial object that we can then write out as a Geopackage or a shapefile for inclusion in a GIS as a vector layer.
 
-We need to tell it which columns are the lon and lat. The default in GBIF downloads is that they are called `decimalLongitude` and `decimalLatitude`, so we will use those names. Amend the code below if the names are any different in your download, for some reason.
+We need to tell it which columns are the longitude and latitude. The default in GBIF downloads is that they are called `decimalLongitude` and `decimalLatitude`, so we will use those names. Amend the code below if the names are any different in your download, for some reason.
 
 In this code chunk, we set the CRS of the spatial data object `download_sf` to be 4326, ie WGS84, which is a geographic CRS, with positions and distance measured in degrees. Further down the line, this may not be what you want...
 
@@ -132,15 +141,22 @@ download_sf
 
 ### Save as a geopackage or shapefile
 
-The spatial object in R that we have created from the GBIF download can be used directly in R for GIS mapping, but can also be saved to disc as a shapefile or GeoPackage (my preferred option) for subsequent plotting in a dedicated GIS application such as QGIS.
+The spatial object in R that we have created from the GBIF download can be used directly in R for GIS mapping, but can also be saved to disc as a shapefile or GeoPackage (my preferred option) for subsequent plotting as a vector layer in a dedicated GIS application such as QGIS.
 
 #### Save as a Shapefile
 
 For this format we create a sub-folder within the output folder, named after the scientific name of the species, and put all the component files of the shapefile we create in there, collected together within another subfolder called <scientific_name_shp>.
 
 ```{r, warning = FALSE, message = FALSE}
-ifelse(!dir.exists(paste0(getwd(),"/output/",scientific_name,"/",paste0(scientific_name,"_shp"))),
-       dir.create(paste0(getwd(),"/output/",scientific_name,"/",paste0(scientific_name,"_shp"))), # create a new sub folder if one didn't exist already
+
+new_dir_path<-here("output",scientific_name)
+if(!dir.exists(new_dir_path)){
+  dir.create(new_dir_path)
+}
+
+folder_path <- paste0(getwd(),"/output/",scientific_name,"/",paste0(scientific_name,"_shp"))
+ifelse(!dir.exists(folder_path),
+       dir.create(folder_path), # create a new sub folder if one didn't exist already
        "Folder exists already") # don't do this if it does.
        
 filepath<-here("output",scientific_name,paste0(scientific_name,"_shp"),paste0(scientific_name,".shp")) 
