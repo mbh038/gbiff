@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Michael Hunt">
+<meta name="dcterms.date" content="2025-12-10">
+
+<title>GBIF Occurrences</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="gbif_occurrences_files/libs/clipboard/clipboard.min.js"></script>
+<script src="gbif_occurrences_files/libs/quarto-html/quarto.js"></script>
+<script src="gbif_occurrences_files/libs/quarto-html/popper.min.js"></script>
+<script src="gbif_occurrences_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="gbif_occurrences_files/libs/quarto-html/anchor.min.js"></script>
+<link href="gbif_occurrences_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="gbif_occurrences_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="gbif_occurrences_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="gbif_occurrences_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="gbif_occurrences_files/libs/bootstrap/bootstrap-c0367b04c37547644fece4185067e4a7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="gbif_occurrences_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="gbif_occurrences_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="gbif_occurrences_files/libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="gbif_occurrences_files/libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
+<script src="gbif_occurrences_files/libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="gbif_occurrences_files/libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
+<script src="gbif_occurrences_files/libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="gbif_occurrences_files/libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="gbif_occurrences_files/libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
+<script src="gbif_occurrences_files/libs/leaflet-binding-2.2.3/leaflet.js"></script>
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">GBIF Occurrences</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Michael Hunt </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 10, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>You can use this script to search for occurrences of a taxon on <a href="https://www.gbif.org">GBIF</a> and then download the data directly into R for subsequent analysis here in this script. You can also save the data as a csv file for later analysis or as a Shapefile or GeoPackage for inclusion as a vector point layer in a GIS application. Finally, the script generates a basic static map and a basic dynamic map</p>
+<section id="preliminary." class="level2">
+<h2 class="anchored" data-anchor-id="preliminary.">Preliminary.</h2>
+<p>You need to have registered with GBIF manually ie not using your Google, Apple , ORCID or similar ID. For this script to work, you need to know your GBIF username and password, and the email address you use to communicate with GBIF. All of these can be found on your GBIF profile.</p>
+<p>To avoid having to have these personal details hard coded into this script, you can run this <a href="here(gbif_setup.qmd)">little file</a>. This will ask you to enter them into a hidden .Renviron file (which you then save and close, never to open it again) from where they can be retrieved by GBIF. All you need to do then is restart R and you should be then able o get occurrence data from GBIF without having to have them in this script.</p>
+<p>In the following, work from the top downwards, implementing each code chunk in sequence.</p>
+<section id="load-packages" class="level3">
+<h3 class="anchored" data-anchor-id="load-packages">Load packages</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rgbif)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf) <span class="co"># for vector spatial data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet) <span class="co"># for dynamic mapping</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap) <span class="co"># for static mapping</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="step-one" class="level2">
+<h2 class="anchored" data-anchor-id="step-one">Step One</h2>
+<p>What is the scientific name of the species for which you want to find occurrences?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>scientific_name <span class="ot">&lt;-</span> <span class="st">"Physalia physalis"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We give this to GBIF and let it look through its records to find the unique species key for this species. If it cannot find it, check if you have spelled the scientific name correctly.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>species_key <span class="ot">&lt;-</span><span class="fu">name_backbone</span>(scientific_name) <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(speciesKey) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Alternatively, you can find the species key on GBIF’s site in various ways, for example by doing an occurrence search then looking at the final digits of the url of the species page you end up on. I did a search on puffins <em>Fratercula arctica</em> and ended up on <a href="https://www.gbif.org/species/2481353">this page</a> for them. The url of that page is <code>https://www.gbif.org/species/2481353</code> and the species ID in GBIF for puffins is 2481353.</p>
+</section>
+<section id="step-two-search-on-gbif-for-occurrences-of-the-selected-taxon" class="level2">
+<h2 class="anchored" data-anchor-id="step-two-search-on-gbif-for-occurrences-of-the-selected-taxon">Step Two: Search on GBIF for occurrences of the selected taxon</h2>
+<p>Be as selective as you can in order to avoid getting huge downloads (there are over 3 billion records on GBIF in total!). You can select by date, area, country - many things, using one of several <code>pred()</code> functions. For help on the available keys and <code>pred()</code> functions, type <code>?pred</code> in the console pane.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gbif_download <span class="ot">&lt;-</span> <span class="fu">occ_download</span>(<span class="fu">pred</span>(<span class="st">"speciesKey"</span>,species_key),</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">pred_default</span>(),</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">pred_gte</span>(<span class="st">"year"</span>,<span class="dv">1900</span>), <span class="co"># try also gt, lt, lte etc</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                              </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># use a two letter country ID or combination of IDs</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">pred_in</span>(<span class="st">"country"</span>,<span class="fu">c</span>(<span class="st">"ES"</span>,<span class="st">"FR"</span>)), </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># you can omit the following lines, as I have, if you have set up your .Renviron file.</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># If you have not done that, uncomment the following three lines and add the details required.</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                              <span class="co"># user="your GBIF username",</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                              <span class="co"># pwd = "your GBIF password",</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                              <span class="co"># email = "the email you have used on your GBIF profile",</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                              <span class="at">format =</span> <span class="st">"SIMPLE_CSV"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This chunk will tell you when the download is done. That might take a few minutes, or even longer for large downloads. Most downloads are complete within 15 minutes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">occ_download_wait</span>(gbif_download)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;&lt;gbif download metadata&gt;&gt;
+  Status: SUCCEEDED
+  DOI: 10.15468/dl.2dr9kx
+  Format: SIMPLE_CSV
+  Download key: 0047486-251009101135966
+  Created: 2025-10-21T13:05:31.292+00:00
+  Modified: 2025-10-21T13:07:29.434+00:00
+  Download link: https://api.gbif.org/v1/occurrence/download/request/0047486-251009101135966.zip
+  Total records: 1108</code></pre>
+</div>
+</div>
+<p>When the download is ready, read the data into a data frame and write it out into a <code>.csv</code> file. You can upload this into a spreadsheet if you like, using the guidance given below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create folder &lt;scientific name&gt; in /output</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>new_dir_path<span class="ot">&lt;-</span><span class="fu">here</span>(<span class="st">"output"</span>,scientific_name)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(new_dir_path)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>download_df <span class="ot">&lt;-</span> <span class="fu">occ_download_get</span>(gbif_download, <span class="at">overwrite =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">occ_download_import</span>()</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># remove the downloaded zip file</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a> download_key <span class="ot">&lt;-</span> <span class="fu">occ_download_meta</span>(gbif_download)<span class="sc">$</span>key</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a> <span class="fu">file.remove</span>(<span class="fu">here</span>(<span class="fu">paste0</span>(download_key,<span class="st">".zip"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save df as csv file in output/&lt;scientific name&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>filepath <span class="ot">&lt;-</span> <span class="fu">here</span>(<span class="st">"output"</span>,scientific_name, <span class="fu">str_c</span>(scientific_name,<span class="st">".csv"</span>))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(download_df,filepath)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The data are now in your R session as a data frame called <code>download_df</code>. Scroll across the columns and see what you have got.</p>
+<section id="open-the-csv-file-in-excel" class="level3">
+<h3 class="anchored" data-anchor-id="open-the-csv-file-in-excel">Open the csv file in Excel</h3>
+<p>Skip this section if you don’t want to do this.</p>
+<p>How do I open tab-delimited CSV files downloaded from GBIF.org in Excel?</p>
+<p>If you’re using Excel on a Mac</p>
+<ul>
+<li>Open Excel</li>
+<li>Create a new empty spreadsheet (File → New)</li>
+<li>Import text file (Data → Get Data → From File → From Text/CSV)</li>
+<li>Select the downloaded CSV file (e.g.&nbsp;0000822-180131172636756.csv)</li>
+<li>Select “Comma” as Delimiter and “Unicode (UTF-8)” as File Origin</li>
+<li>Click Load</li>
+</ul>
+<p>If you’re using Excel in Windows</p>
+<ul>
+<li>Open Excel</li>
+<li>Create a new empty spreadsheet (File → New)</li>
+<li>Click the Data tab</li>
+<li>From “Get External Data”, click From text</li>
+<li>Select the downloaded CSV file (e.g.&nbsp;0000822-180131172636756.csv)</li>
+<li>Click Import</li>
+<li>Select “Delimited” as Data Type and “Unicode (UTF-8)” as File Origin</li>
+<li>Click Finish</li>
+<li>Click OK to import data into current sheet</li>
+</ul>
+</section>
+</section>
+<section id="convert-data-frame-to-spatial-object-in-wgs84" class="level2">
+<h2 class="anchored" data-anchor-id="convert-data-frame-to-spatial-object-in-wgs84">Convert data frame to spatial object in WGS84</h2>
+<p>We can use functions from the <code>sf</code> package to convert the data frame we have just created into a spatial object that we can then write out as a Geopackage or a shapefile for inclusion in a GIS as a vector layer.</p>
+<p>We need to tell it which columns are the longitude and latitude. The default in GBIF downloads is that they are called <code>decimalLongitude</code> and <code>decimalLatitude</code>, so we will use those names. Amend the code below if the names are any different in your download, for some reason.</p>
+<p>In this code chunk, we set the CRS of the spatial data object <code>download_sf</code> to be 4326, ie WGS84, which is a geographic CRS, with positions and distance measured in degrees. Further down the line, this may not be what you want…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>download_sf <span class="ot">&lt;-</span> download_df <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"decimalLongitude"</span>, <span class="st">"decimalLatitude"</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_cast</span>(<span class="st">"POINT"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>download_sf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 1108 features and 48 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: -108.0761 ymin: 12.00083 xmax: 8.7583 ymax: 48.71197
+Geodetic CRS:  WGS 84
+# A tibble: 1,108 × 49
+       gbifID datasetKey    occurrenceID kingdom phylum class order family genus
+      &lt;int64&gt; &lt;chr&gt;         &lt;chr&gt;        &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;
+ 1 5844648229 50c9509d-22c… https://www… Animal… Cnida… Hydr… Siph… Physa… Phys…
+ 2 5844597336 50c9509d-22c… https://www… Animal… Cnida… Hydr… Siph… Physa… Phys…
+ 3 5844340900 50c9509d-22c… https://www… Animal… Cnida… Hydr… Siph… Physa… Phys…
+ 4 5844181143 50c9509d-22c… https://www… Animal… Cnida… Hydr… Siph… Physa… Phys…
+ 5 5844120125 50c9509d-22c… https://www… Animal… Cnida… Hydr… Siph… Physa… Phys…
+ 6 5844046698 50c9509d-22c… https://www… Animal… Cnida… Hydr… Siph… Physa… Phys…
+ 7 5840987515 8a863029-f43… https://obs… Animal… Cnida… Hydr… Siph… Physa… Phys…
+ 8 5840970628 8a863029-f43… https://obs… Animal… Cnida… Hydr… Siph… Physa… Phys…
+ 9 5840940083 8a863029-f43… https://obs… Animal… Cnida… Hydr… Siph… Physa… Phys…
+10 5840919548 8a863029-f43… https://obs… Animal… Cnida… Hydr… Siph… Physa… Phys…
+# ℹ 1,098 more rows
+# ℹ 40 more variables: species &lt;chr&gt;, infraspecificEpithet &lt;lgl&gt;,
+#   taxonRank &lt;chr&gt;, scientificName &lt;chr&gt;, verbatimScientificName &lt;chr&gt;,
+#   verbatimScientificNameAuthorship &lt;chr&gt;, countryCode &lt;chr&gt;, locality &lt;chr&gt;,
+#   stateProvince &lt;chr&gt;, occurrenceStatus &lt;chr&gt;, individualCount &lt;int&gt;,
+#   publishingOrgKey &lt;chr&gt;, coordinateUncertaintyInMeters &lt;dbl&gt;,
+#   coordinatePrecision &lt;lgl&gt;, elevation &lt;lgl&gt;, elevationAccuracy &lt;lgl&gt;, …</code></pre>
+</div>
+</div>
+<section id="save-as-a-geopackage-or-shapefile" class="level3">
+<h3 class="anchored" data-anchor-id="save-as-a-geopackage-or-shapefile">Save as a geopackage or shapefile</h3>
+<p>The spatial object in R that we have created from the GBIF download can be used directly in R for GIS mapping, but can also be saved to disc as a shapefile or GeoPackage (my preferred option) for subsequent plotting as a vector layer in a dedicated GIS application such as QGIS.</p>
+<section id="save-as-a-shapefile" class="level4">
+<h4 class="anchored" data-anchor-id="save-as-a-shapefile">Save as a Shapefile</h4>
+<p>For this format we create a sub-folder within the output folder, named after the scientific name of the species, and put all the component files of the shapefile we create in there, collected together within another subfolder called <scientific_name_shp>.</scientific_name_shp></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>new_dir_path<span class="ot">&lt;-</span><span class="fu">here</span>(<span class="st">"output"</span>,scientific_name)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(new_dir_path)){</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir.create</span>(new_dir_path)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>folder_path <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="fu">getwd</span>(),<span class="st">"/output/"</span>,scientific_name,<span class="st">"/"</span>,<span class="fu">paste0</span>(scientific_name,<span class="st">"_shp"</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(folder_path),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>       <span class="fu">dir.create</span>(folder_path), <span class="co"># create a new sub folder if one didn't exist already</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>       <span class="st">"Folder exists already"</span>) <span class="co"># don't do this if it does.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Folder exists already"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>filepath<span class="ot">&lt;-</span><span class="fu">here</span>(<span class="st">"output"</span>,scientific_name,<span class="fu">paste0</span>(scientific_name,<span class="st">"_shp"</span>),<span class="fu">paste0</span>(scientific_name,<span class="st">".shp"</span>)) </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">st_write</span>(download_sf, filepath, <span class="at">append =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Deleting layer `Physalia physalis' using driver `ESRI Shapefile'
+Writing layer `Physalia physalis' to data source 
+  `/Users/michaelhunt/git_repos/gbiff/output/Physalia physalis/Physalia physalis_shp/Physalia physalis.shp' using driver `ESRI Shapefile'</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Writing 1108 features with 48 fields and geometry type Point.</code></pre>
+</div>
+</div>
+</section>
+<section id="save-as-a-geopackage" class="level4">
+<h4 class="anchored" data-anchor-id="save-as-a-geopackage">Save as a Geopackage</h4>
+<p>We save this into the subfolder output/<scientific name=""></scientific></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>filepath<span class="ot">&lt;-</span><span class="fu">here</span>(<span class="st">"output"</span>,scientific_name, <span class="fu">paste0</span>(scientific_name,<span class="st">".gpkg"</span>))</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">st_write</span>(download_sf, filepath, <span class="at">append =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Deleting layer `Physalia physalis' using driver `GPKG'
+Writing layer `Physalia physalis' to data source 
+  `/Users/michaelhunt/git_repos/gbiff/output/Physalia physalis/Physalia physalis.gpkg' using driver `GPKG'
+Writing 1108 features with 48 fields and geometry type Point.</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="map-the-occurrence-data" class="level2">
+<h2 class="anchored" data-anchor-id="map-the-occurrence-data">Map the occurrence data</h2>
+<p>The mapping code presented here just scratches the surface of what you can do - pretty much all of GIS can be done in R.</p>
+<section id="static-map-using-tmap" class="level3">
+<h3 class="anchored" data-anchor-id="static-map-using-tmap">Static map using <code>tmap</code></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make some bbox magic</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>bbox_new <span class="ot">&lt;-</span> <span class="fu">st_bbox</span>(download_sf) <span class="co"># current bounding box</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>xrange <span class="ot">&lt;-</span> bbox_new<span class="sc">$</span>xmax <span class="sc">-</span> bbox_new<span class="sc">$</span>xmin <span class="co"># range of x values</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>yrange <span class="ot">&lt;-</span> bbox_new<span class="sc">$</span>ymax <span class="sc">-</span> bbox_new<span class="sc">$</span>ymin <span class="co"># range of y values</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>bbox_new[<span class="dv">3</span>] <span class="ot">&lt;-</span> bbox_new[<span class="dv">3</span>] <span class="sc">+</span> (<span class="fl">0.25</span> <span class="sc">*</span> xrange) <span class="co"># xmax - right</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>bbox_new[<span class="dv">4</span>] <span class="ot">&lt;-</span> bbox_new[<span class="dv">4</span>] <span class="sc">+</span> (<span class="fl">0.2</span> <span class="sc">*</span> yrange) <span class="co"># ymax - top</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>bbox_new <span class="ot">&lt;-</span> bbox_new <span class="sc">|&gt;</span>  <span class="co"># take the bounding box ...</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sfc</span>() <span class="co"># ... and make it a sf polygon</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co"># tmap with 2 layers</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(download_sf, <span class="at">bbox =</span> bbox_new)<span class="sc">+</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_basemap</span>() <span class="sc">+</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(<span class="at">size =</span> .<span class="dv">1</span>, <span class="at">col =</span> <span class="st">"species"</span>) <span class="sc">+</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">position =</span> <span class="fu">c</span>(<span class="st">"left"</span>, <span class="st">"top"</span>))<span class="sc">+</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scalebar</span>(<span class="at">position =</span> <span class="fu">c</span>(<span class="st">"right"</span>, <span class="st">"top"</span>))<span class="sc">+</span> </span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">fill_alpha=</span><span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">"black"</span>)<span class="sc">+</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_legend</span>(<span class="at">legend.format =</span> <span class="fu">list</span>(<span class="at">text.separator=</span> <span class="st">"a"</span>)) <span class="sc">+</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">"right"</span>, <span class="st">"top"</span>),</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">frame =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_legend</span>(<span class="at">show =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="gbif_occurrences_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="dynamic-map-using-leaflet" class="level3">
+<h3 class="anchored" data-anchor-id="dynamic-map-using-leaflet">Dynamic map using <code>leaflet</code></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">leaflet</span>(download_df) <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addTiles</span>() <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addCircleMarkers</span>(<span class="sc">~</span>decimalLongitude, <span class="sc">~</span>decimalLatitude, <span class="at">label =</span> <span class="sc">~</span>basisOfRecord)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>m</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-811c2e10bb433ef5885f" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-811c2e10bb433ef5885f">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addCircleMarkers","args":[[43.630849,43.464408,43.300015,43.452742,43.589918,43.555539,43.633494,43.636644,43.633759,43.480158,43.422333,43.618307,43.628737,43.554108,43.554853,43.675962,43.55658,45.008851,43.41708,43.6105,43.417255,43.495386,43.388062,43.659978,43.423486,36.092433,46.191833,43.561668,43.469742,43.534012,36.723559,42.189942,44.163838,43.792867,43.319633,43.382492,43.562608,42.547625,43.559302,43.54134,43.561903,43.645556,44.459142,42.153237,43.481715,43.4701,42.216207,44.459662,45.047253,43.859381,42.824545,45.00007,45.009436,45.005438,42.211912,42.577538,42.577918,45.08076,43.801081,44.801011,43.540318,43.542766,42.200723,42.817624,42.693875,43.58221,43.595276,44.299966,43.456355,43.479456,42.2499,42.2499,42.755421,43.402617,42.936749,43.475372,42.289732,43.567262,42.39026,43.550481,43.744755,43.752799,43.540441,43.558753,43.490322,43.478541,43.572392,43.397706,43.37275,42.907616,43.562986,42.211709,42.582998,42.749593,43.468167,43.044325,43.044477,43.28816,43.457256,43.721878,28.245268,43.311803,43.561923,43.604966,42.756505,42.461085,43.578367,43.545428,43.553888,43.544766,43.577824,43.583427,43.581375,43.578529,43.55421,43.546337,43.611414,43.438788,43.344447,43.344473,43.562036,43.565347,43.557801,43.564244,43.34448,43.557776,43.554058,43.458559,43.557885,43.554147,43.557971,43.553858,43.639437,43.416053,43.745555,43.556253,43.766875,43.570128,43.291527,43.713081,43.556295,43.556252,43.569731,43.458649,43.457543,43.551948,43.30075,43.458433,43.566253,43.589378,43.48532,43.555448,43.544137,43.294413,42.451064,43.289118,43.449313,43.322803,43.290012,43.732636,43.315037,43.293288,43.722211,43.548092,43.28998,43.553172,43.563427,43.56497,43.323295,43.631823,43.30689,43.465281,43.290233,43.287966,43.466053,43.527399,43.475297,43.662,43.618404,43.598818,43.315078,43.317505,43.690043,43.4714,43.644978,43.432565,43.570097,43.297747,43.659517,43.64502,36.883319,43.44265,43.299553,38.247505,43.42523,43.316395,44.0811,37.557903,43.806377,43.388017,43.327296,43.43008,43.288238,43.427885,36.08046,43.414736,28.650556,43.568308,28.758668,28.344072,43.553931,28.685557,28.57066,47.506378,36.394695,29.200069,28.672884,36.957507,36.824646,36.716903,42.326959,42.251486,36.490462,28.118072,28.566108,36.005494,36.005494,28.572875,28.247555,37.20513,37.205625,37.206347,36.805142,37.204163,37.204217,27.81368,37.205272,37.205722,28.570725,27.81368,36.087853,39.546724,37.206097,37.20625,37.206362,37.204158,37.205967,37.206437,36.71804,37.205605,37.204833,37.205508,37.206433,28.570622,37.20605,29.220566,36.707178,37.204587,36.712089,36.709508,37.205792,36.697992,36.707032,28.247605,36.701873,28.130468,36.698792,36.709615,27.748749,28.131082,28.133493,28.229591,27.7976,27.7976,27.8145,28.158737,27.7976,27.8145,28.15796,28.158737,28.146277,27.7976,27.7976,27.7976,28.146277,27.7976,27.7976,27.7976,27.7976,27.8145,28.158737,28.15796,28.15796,28.15796,28.15796,28.15796,28.15796,28.15796,28.15796,28.15796,28.15796,28.15796,28.15796,28.15796,36.633904,36.633836,36.719331,36.724622,28.807604,36.724748,28.570866,28.570716,36.016252,36.083545,28.085963,43.665672,27.798304,43.701191,28.570706,28.040824,28.034287,28.217074,28.154459,28.569708,28.68633,28.499893,28.811432,36.62038,36.081657,37.092413,36.074199,37.449408,37.144053,28.064089,28.069012,28.652949,28.394226,36.005572,36.408908,36.413485,43.459229,28.06661,28.1108,37.633118,28.753145,28.04597,27.743555,28.576875,36.703834,28.100634,28.358742,28.727695,28.275014,28.182358,28.570402,28.127154,28.287939,28.135989,43.368722,28.735501,28.033009,28.034132,28.030142,28.144105,28.691159,43.432506,28.739279,28.727436,44.833595,43.515274,28.177896,43.390166,28.217424,28.091278,28.006719,43.493131,28.128375,28.090338,28.734444,28.11196,28.074252,36.504014,28.2296,43.318477,43.37812,43.479628,28.723289,28.653233,28.076678,28.134924,43.573605,28.089079,43.390312,36.451263,43.561425,43.553661,42.208558,28.577431,28.46559,28.65215,36.401979,28.087733,28.172289,28.716123,43.514922,28.005958,28.11079,43.804302,28.997123,28.065861,28.2296,43.416809,28.716528,43.61858,28.734479,43.579735,43.05412,43.713344,28.101457,42.540734,28.937098,28.393944,28.208138,42.259502,29.209407,43.4422,28.753145,36.764955,43.377071,43.379236,28.572972,28.044266,42.553144,28.208113,42.154185,43.476968,28.08969,28.733527,27.766413,42.325081,43.573341,28.112917,43.562593,28.706628,43.733562,28.404701,27.766403,42.477363,43.289008,43.414647,28.677524,28.006199,28.093472,36.263752,28.39938,43.544223,28.653788,43.545483,43.54393,28.035122,28.202915,28.231506,28.721527,28.06986,28.854296,28.871014,28.06986,28.419233,28.371376,36.179035,27.749746,28.856026,29.118654,43.646132,46.212312,29.118973,29.118757,29.118823,28.029599,43.645469,28.113602,28.323269,46.958968,28.576692,36.035088,27.642094,36.23596,27.704398,28.640475,42.15341,42.15346,42.11228,43.472002,36.406098,36.41182,36.411336,36.411336,43.479721,36.41182,36.998254,36.41182,36.41182,36.411336,36.41182,36.420813,36.197971,43.461304,36.407219,42.203475,36.015085,36.023557,36.014012,36.41182,43.431483,43.431172,36.41182,36.63819,36.411336,36.411336,36.764274,36.406432,36.41182,36.411336,36.014321,35.88824,43.428793,36.411336,37.376705,36.625351,38.50372,36.014321,36.197971,36.411336,43.512829,36.271248,43.631236,42.203475,37.559186,36.015938,36.197971,36.409126,36.411336,43.466002,28.019762,42.221285,42.575754,43.445331,43.474594,43.475234,43.324172,43.771903,28.577429,28.571137,42.234355,43.616008,43.801158,43.625466,43.703892,42.226016,43.391133,43.548262,43.553568,43.554163,43.554963,42.390303,28.11313,43.479608,43.639345,43.546986,43.604847,43.390409,43.543644,43.448292,43.555478,43.464582,43.563136,43.543644,43.456869,36.684028,36.395,43.299316,36.823471,37.066758,28.040988,28.734394,36.953122,43.385184,28.578112,43.691442,28.093375,36.584944,36.976952,36.682453,29.10695,28.166,43.470499,28.166007,46.415592,36.177408,28.570576,28.028842,28.936532,28.576728,28.653255,28.13163,28.138795,28.65199,28.035262,27.770838,28.237362,28.651771,43.32,48.06075,47.8709,48.06066,47.79318,47.79315,47.8709,47.85276,47.69721,47.79318,47.79299,47.57343,47.80119,48.06066,47.79318,47.70829,47.79243,47.86117,48.06062,48.2759,47.83132,47.79294,47.79318,48.06066,48.06066,48.06066,47.57343,48.06075,48.06066,47.79315,47.86117,48.06066,48.06062,47.80142,47.79299,47.85421,47.68767,47.57343,48.06062,47.80034,48.06075,48.06075,47.68779,47.80034,48.06062,48.06062,47.80119,48.06066,47.86457,48.06075,47.80119,47.80034,47.80034,47.79627,47.8709,48.06075,47.79315,47.79627,47.86117,47.85276,47.80119,47.85263,47.79318,48.06066,47.85276,47.8709,47.80142,47.79294,47.79677,48.06062,48.06062,47.79627,48.06066,47.86117,47.85276,47.80034,47.85276,47.69503,47.57343,47.80119,48.06066,48.06062,45.53037,44.78305,44.78305,44.78305,43.300265,28.997264,43.554002,29.23185,28.509712,43.618747,36.063214,28.721744,28.152798,29.130072,43.323296,28.691076,28.137238,28.120854,48.437076,48.429368,45.475955,48.595454,42.630313,48.032245,48.661638,48.595799,28.1425,43.460407,47.799297,43.721828,42.473449,43.36721,43.860565,48.208674,43.613788,44.992735,46.017939,43.73013,45.504605,43.577465,43.577561,43.582547,43.412601,44.56527,43.447446,43.326959,43.458501,43.661857,43.571861,43.555727,44.250023,43.819997,43.722095,46.727008,43.43941,47.896585,47.843769,43.433905,44.713381,43.462792,47.797193,43.795392,42.574869,43.47003,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,36.45809,28.59194,43.415924,43.502781,43.574478,28.1901,28.104128,28.098869,28.733365,36.729902,28.398513,39.093011,36.718533,28.642919,28.109872,28.569617,28.569867,28.568714,28.93654,28.102553,28.142854,43.273608,28.715904,28.100575,28.693875,28.141946,28.131119,28.037119,27.704387,28.029426,28.718164,29.08138,29.063682,38.67,38.68,38.11,38.01,38.53,38.08,38.53,38.51,38.51,38.63,38.17,38.54,39.01,39.07,38.53,38.59,38.66,38.4,38.66,38.64,37.97,40.45,38.04,38.68,39.93,38.89,38.58,38.89,39.48,38.63,38.51,38.71,38.53,39.38,39.79,40.5,38.68,38.37,28.648524,28.574726,28.570958,28.143417,28.949445,28.145738,28.951619,28.950708,28.145832,28.949158,28.652373,28.178293,28.568981,43.407608,28.578628,28.652269,28.406898,43.59461,28.165244,28.57818,27.640769,28.123546,47.191153,28.203512,42.209346,43.299335,27.7668,27.941761,47.631793,28.073144,47.53626,27.983603,27.991435,28.083113,28.570674,28.834327,43.270988,28.646376,28.693101,28.203867,28.470558,28.109219,28.509712,28.218868,28.036068,28.926853,28.051385,27.765564,27.766508,27.765085,27.763124,28.137596,27.766726,27.768542,28.083469,28.036631,29.11584,28.141864,28.759095,27.637327,28.575541,28.034272,29.116997,47.380911,28.13052,28.100488,28.739233,28.248389,28.027449,28.061983,42.251486,28.482237,28.668845,28.024561,28.139472,28.031558,28.141561,29.111787,28.144138,27.746641,27.995942,28.365671,27.997096,28.177473,27.996144,27.997046,43.4161,28.653464,48.71197,47.41888,46.8017,47.01716,28.577332,28.949899,28.949051,28.575331,43.553284,28.734157,28.133155,27.873996,28.556561,43.560685,28.946963,28.946963,40.4501,37.6371,28.0586,36.7805,36.8243,36.8208,35.8965,28.5716,36.8401,35.8951,36.5958,38.0352,35.943,39.4203,39.4508,38.7278,38.0088,37.9701,36.4877,27.9964,36.424,39.824,37.57,36.1117,38.0786,36.7326,42.3408,28.2009,36.0838,36.006,37.1995,36.7623,36.8277,28.13,29.081964,28.111768,38.070458,28.206861,27.711844,28.205277,28.119459,36.280353,28.178526,28.354083,28.354083,28.04666,28.066421,29.116623,36.07895,43.641894,29.06158,48.031803,36.060373,36.408197,36.001077,37.00622,28.147129,36.000854,28.652068,28.219613,28.28,28.665889,42.453036,28.647478,28.28,42.455085,36.778202,28.664746,28.600861,36.98176,36.13578,28.715305,28.637377,28.570629,28.417901,28.417901,28.417759,28.41791,28.136819,36.63137,28.055866,28.052635,29.125955,28.112883,28.456031,47.67984,47.67931,28.040443,28.553977,36.490088,47.666562,47.67025,47.672768,36.015033,28.045984,48.452507,29.007783,28.759133,28.048598,28.048611,28.575374,36.772345,36.012884,28.715042,39.91,38.64,39.91,39.91,39.91,38.45,38.45,38.35,38.19,38.03,38.17,38.33,38.19,38.37,38.03,38.03,38.17,38.03,38.03,38.03,28.221746,12.00083,27.25],[-5.79285,-5.054572,-2.26032,-3.962147,-5.767485,-8.275200999999999,-5.812038,-5.810115,-5.811732,-3.788239,-3.44172,-5.787623,-5.808536,-7.157895,-7.158289,-2.52286,-7.175705,-1.200999,-3.433476,-1.465956,-3.409901,-7.082109,-2.997637,-5.716833,-3.448075,-5.443552,-1.43382,-6.616818,-3.486563,-5.383312,-3.728009,-9.053364,-1.308152,-1.412675,-8.607412999999999,-3.217228,-6.088768,-8.984854,-6.677313,-5.644568,-7.199969,-2.838528,-1.254695,-8.833062999999999,-5.133599,-3.775968,-8.901828,-1.254445,-1.197028,-1.386872,-9.106719,-1.202485,-1.200931,-1.201139,-8.907071999999999,-9.061641,-9.061175,-1.192739,-1.4117,-1.234681,-5.645727,-5.645983,-8.903444,-9.107708000000001,-9.027914000000001,-5.949375,-5.939059,-3.91656,-3.745085,-5.140187,-8.7949,-8.7949,-9.101075,-2.637225,-9.187958999999999,-5.196578,-9.019982000000001,-6.295037,-8.924647,-7.16539,-7.866592,-7.724298,-5.647221,-6.176125,-3.515,-5.148478,-6.199403,-4.359169,-8.446441999999999,-9.27458,-7.204033,-8.902711999999999,-9.076791,-9.09315,-3.725625,-9.289032000000001,-9.288123000000001,-2.16805,-3.761403,-7.804825,-16.873489,-8.56828,-7.20761,-5.917969,-9.103163,-8.899946999999999,-5.958356,-5.642784,-7.147534,-5.64378,-5.961317,-5.671821,-6.212575,-5.95827,-7.147558,-5.666463,-8.171604,-3.459773,-8.355922,-8.355494999999999,-7.196381,-7.223521,-6.981442,-7.210597,-8.355924999999999,-6.981375,-7.157226,-3.770042,-6.981352,-7.160278,-6.981327,-7.160436,-8.110447000000001,-3.411347,-7.748058,-8.286875,-7.676705,-6.838636,-8.700336999999999,-7.625825,-8.293483,-8.286897,-6.140431,-3.735087,-3.740646,-6.998103,-2.260416,-3.73563,-6.295408,-5.941359,-3.51458,-7.130065,-5.660045,-2.149011,-8.872633,-2.160833,-4.897463,-2.40983,-8.70687,-7.676006,-1.996247,-8.744147,-7.804141,-6.51768,-8.707025,-6.998097,-7.205287,-7.219575,-8.815049999999999,-5.811891,-8.642747999999999,-3.470522,-2.156367,-2.172004,-3.471584,-2.682736,-5.204013,-1.444655,-8.149435,-1.47409,-1.997011,-2.004914,-1.440796,-3.496473,-5.835775,-1.601308,-6.9378,-8.681993,-7.361614,-5.835845,-6.43534,-1.592783,-2.267937,-0.520667,-1.61445,-2.001153,-1.329122,-1.274758,-1.404465,-2.995805,-1.973379,-2.710295,-2.163765,-4.093543,-5.762238,-2.959489,-17.946331,-6.846603,-17.738453,-14.179463,-7.161428,-14.010862,-16.204277,-2.718087,-6.209126,-13.50427,-14.008916,-6.497867,-2.448208,-2.874788,-9.059846,-8.867528,-4.777882,-16.777063,-16.222079,-5.608778,-5.608778,-17.900367,-16.8401,-7.207922,-7.201445,-7.174655,-2.062313,-7.227745,-7.226653,-15.7534,-7.207687,-7.200878,-16.252642,-15.7534,-5.766028,2.697635,-7.179537,-7.187775,-7.189455,-7.22812,-7.198117,-7.174808,-2.875993,-7.202708,-7.215403,-7.20315,-7.178837,-16.25258,-7.188275,-13.529978,-2.865786,-7.214355,-2.86993,-3.390312,-7.200462,-2.852293,-2.865653,-16.840137,-2.861174,-15.44736,-2.857216,-3.391435,-15.634563,-15.445542,-15.44234,-16.841109,-15.7349,-15.7349,-15.7533,-15.664499,-15.7349,-15.7533,-15.66502,-15.664499,-15.557677,-15.7349,-15.7349,-15.7349,-15.557677,-15.7349,-15.7349,-15.7349,-15.7349,-15.7533,-15.664499,-15.66502,-15.66502,-15.66502,-15.66502,-15.66502,-15.66502,-15.66502,-15.66502,-15.66502,-15.66502,-15.66502,-15.66502,-15.66502,-4.485775,-4.485709,-4.406448,-2.194295,-17.768248,-2.194285,-16.252413,-16.252657,-5.614295,-5.764279,-17.337687,-2.866171,-15.73092,-2.86701,-16.252628,-16.542301,-16.541156,-14.221583,-15.53048,-16.204607,-14.014381,-16.424952,-17.77639,-6.366005,-5.761089,-6.733452,-5.753052,-1.481949,-6.887503,-16.73273,-16.473982,-17.760288,-16.602424,-5.608394,-6.220102,-6.222215,-3.735878,-16.733437,-14.3938,-0.699744,-18.004647,-16.53417,-15.568662,-16.327213,-2.862942,-17.347513,-14.053675,-13.851604,-16.384277,-16.931633,-16.332956,-16.782015,-16.874146,-15.439988,-8.411346999999999,-13.867301,-16.562274,-16.541034,-16.552072,-15.43307,-13.832045,-2.900326,-13.937858,-13.844637,-4.161837,-5.264465,-17.177703,-5.184641,-14.221004,-17.105349,-15.37685,-3.53734,-17.103608,-17.110405,-13.976062,-16.357269,-16.749687,-6.278821,-16.8408,-1.994931,-2.475357,-5.141961,-13.998838,-17.760575,-14.298155,-15.441054,-3.052605,-17.339473,-2.991785,-5.077606,-7.189675,-6.993139,-8.777331999999999,-16.324735,-17.831441,-17.759288,-6.183853,-17.112773,-16.951641,-14.013527,-5.266694,-16.656089,-14.393763,-5.695804,-13.830374,-16.742706,-16.8412,-4.743782,-14.013227,-5.788113,-13.976059,-5.954064,-9.299457,-2.807544,-14.461468,-9.137634,-13.831707,-16.602833,-14.232917,-8.841544000000001,-13.497173,-4.874904,-18.004653,-2.093394,-3.212739,-8.408825,-16.191465,-16.533527,-9.159802000000001,-17.299318,-8.826699,-3.785887,-16.741304,-13.966141,-18.121572,-8.825742999999999,-5.995424,-14.385395,-5.400767,-13.837487,-2.716418,-16.317616,-18.121564,-8.921253999999999,-2.177786,-4.749907,-17.991282,-16.656529,-17.109497,-6.087552,-14.156511,-5.692643,-17.761362,-5.642658,-5.661407,-16.542723,-17.251995,-16.87912,-13.842173,-17.34827,-13.790846,-13.828799,-17.34827,-16.506613,-14.042061,-5.904844,-15.636377,-13.871269,-13.563802,-5.85121,-1.540253,-13.564725,-13.564177,-13.564467,-16.578166,-5.884228,-16.769627,-16.361352,-2.261157,-16.329364,-5.628626,-17.975006,-5.312851,-18.133582,-17.938642,-8.82874,-8.82868,-8.89878,-3.777764,-6.219277,-6.221781,-6.221695,-6.221695,-3.787987,-6.221781,-6.551621,-6.221781,-6.221781,-6.221695,-6.221781,-6.226862,-5.32857,-2.68199,-6.220095,-8.781488,-5.612075,-5.619078,-5.61219,-6.221781,-4.791995,-4.792032,-6.221781,-6.392992,-6.221695,-6.221695,-2.614935,-6.219893,-6.221781,-6.221695,-5.60445,-5.316184,-2.808459,-6.221695,-1.628165,-6.379494,-0.230553,-5.60445,-5.32857,-6.221695,-1.533279,-6.091425,-5.808597,-8.781488,-1.282879,-5.61367,-5.32857,-6.221008,-6.221695,-3.474598,-16.749085,-8.902051999999999,-9.067923,-3.974075,-3.892189,-3.78511,-1.917032,-7.669039,-16.318515,-16.332825,-8.718953000000001,-8.152817000000001,-1.4109,-5.878579,-7.84688,-8.954345999999999,-4.375537,-5.639697,-6.994505,-7.148249,-8.270647,-8.925069000000001,-14.383968,-5.225978,-5.828963,-5.589239,-5.9191,-4.327415,-6.757594,-3.970608,-7.140696,-3.464689,-6.644603,-6.757594,-4.936956,-6.417001,-6.21781,-2.267518,-6.398941,-6.682998,-16.541938,-13.976807,-6.492277,-3.222247,-16.321551,-1.4407,-16.749655,-6.275969,-6.521185,-2.93229,-13.738428,-15.440869,-3.934653,-15.440888,-1.540789,-5.902684,-16.25296,-16.551287,-13.831299,-16.327028,-17.760422,-15.444505,-15.437203,-17.759087,-16.542845,-15.538733,-14.212405,-17.759073,-1.9956,-4.67228,-4.10343,-4.67163,-4.22643,-4.22656,-4.10343,-3.99534,-3.35445,-4.22643,-4.27921,-2.86097,-4.18265,-4.67163,-4.22643,-3.36164,-4.27914,-3.98382,-4.67165,-4.61711,-3.89124,-4.27909,-4.22643,-4.67211,-4.67163,-4.67211,-2.86097,-4.67232,-4.67211,-4.22656,-3.98382,-4.67211,-4.67165,-4.18248,-4.27921,-3.97966,-3.35921,-2.86097,-4.67165,-4.18313,-4.67228,-4.67228,-3.29581,-4.18313,-4.67165,-4.67165,-4.18265,-4.67211,-4.1199,-4.67228,-4.18265,-4.18313,-4.18313,-3.85146,-4.10343,-4.67228,-4.22656,-3.85146,-3.98382,-3.99534,-4.18265,-3.99373,-4.22643,-4.67163,-3.99534,-4.10343,-4.18248,-4.27909,-4.32821,-4.67165,-4.67165,-3.85146,-4.67211,-3.98382,-3.99534,-4.18313,-3.99534,-3.34342,-2.86097,-4.18265,-4.67211,-4.67165,-0.92101,-1.23824,-1.23824,-1.23824,-2.2617,-13.830274,-7.156881,-13.497967,-16.184744,-5.785966,-5.679466,-13.841895,-16.432409,-13.463419,-8.813267,-13.831974,-14.240852,-14.250176,-5.112515,-4.785002,-1.15215,-4.60773,-9.045247,-4.843413,-4.29394,-4.607763,-15.434528,-4.973359,-4.345625,-1.433324,-9.082549,-2.507416,-1.394582,-4.554044,-8.178440999999999,-1.202849,-1.177269,-7.689253,-1.137467,-5.962246,-5.964264,-8.215847,-1.630327,-1.23797,-2.810874,-8.512902,-3.726776,-1.445563,-6.624581,-8.274048000000001,-1.290573,-1.404912,-7.630087,-2.346961,-3.452333,-3.963604,-4.346703,-1.599342,-1.242333,-3.725903,-4.37513,-1.412572,-9.070553,-1.571745,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-6.25268,-17.92091,-2.944515,-1.535842,-6.041921,-16.8673,-16.781239,-16.756402,-13.865575,-3.737356,-14.156379,-0.217411,-4.360687,-17.939898,-14.264811,-16.204637,-16.204255,-16.320072,-13.831455,-14.428363,-15.433717,-8.712159,-14.015582,-17.347578,-14.017811,-15.434857,-15.458247,-16.543244,-18.133312,-17.195873,-13.841221,-13.715927,-13.767432,0.1,0.13,-0.6,-0.65,-0.13,-0.65,-0.1,-0.23,-0.18,-0.01,-0.48,-0.13,-0.16,-0.21,-0.11,-0.05,0.09,-0.41,0.09,0.06,-0.6899999999999999,0.49,-0.65,0.14,0,-0.03,-0.03,-0.03,-0.32,-0.01,-0.18,0.17,-0.1,-0.32,-0.13,0.5,0.14,-0.41,-17.753941,-16.317616,-16.203983,-15.432719,-13.592272,-15.432588,-13.587104,-13.590086,-15.433112,-13.593129,-17.759851,-17.178909,-16.320808,-2.659725,-16.322176,-17.759919,-16.31312,-7.296365,-17.335793,-16.318921,-18.000041,-15.436257,-2.161189,-17.252754,-8.776215000000001,-8.676360000000001,-18.121395,-15.828146,-3.199805,-17.129587,-3.140957,-15.378066,-16.728427,-17.335166,-16.243596,-17.861737,-9.003259999999999,-14.022439,-13.79449,-16.910223,-17.865718,-14.400548,-16.184744,-14.221253,-16.542953,-13.634976,-16.510479,-18.120866,-18.120181,-18.120625,-18.122067,-15.437676,-18.121516,-18.121272,-17.33494,-16.542908,-13.5579,-15.434922,-17.739279,-17.981207,-16.31743,-16.544346,-13.563005,-2.960382,-15.447311,-17.347784,-13.951775,-16.886795,-16.704583,-17.62207,-8.867528,-17.868308,-18.017342,-16.705205,-15.43669,-16.555095,-15.435005,-13.657879,-15.432489,-15.568427,-15.373577,-13.869683,-15.374954,-17.169873,-15.373977,-15.374615,-1.777039,-17.761271,-3.98869,-2.46835,-2.08258,-2.29672,-16.326207,-13.592315,-13.590238,-16.317634,-6.996144,-13.866635,-15.446177,-15.381871,-16.344123,-6.61351,-13.599187,-13.599187,0.4949,-0.7050999999999999,-15.4192,-2.5959,-2.5176,-2.5101,-5.2996,-14.0477,-2.3729,-5.3009,-6.2746,-0.6519,-3.158,2.7041,2.7415,1.455,-0.6522,-0.6958,-4.9429,-15.3744,-6.2292,4.2244,0.42,-5.4373,-0.6535,-3.7187,8.7583,-16.8296,-5.766,-3.015,-7.0165,-2.1064,-2.4539,-15.4457,-13.718675,-14.388367,-0.648195,-16.835494,-17.958361,-17.252993,-16.775889,-5.280061,-16.801099,-16.928573,-16.928573,-16.738185,-16.734082,-13.551412,-5.759912,-8.073384000000001,-13.761737,-4.840795,-5.720112,-6.220524,-5.61112,-6.567625,-14.233405,-5.610818,-17.759156,-14.219909,-14.22,-17.985306,-8.924531999999999,-17.944572,-14.22,-8.931509,-2.24349,-17.765938,-17.924058,-6.528611,-5.849847,-14.012958,-17.955322,-16.252956,-16.52018,-16.52018,-16.520759,-16.519133,-15.438172,-6.391038,-14.317354,-14.320191,-13.57424,-14.38378,-17.845374,-3.273228,-3.27173,-16.542538,-17.95007,-4.776783,-3.251146,-3.256586,-3.260763,-5.612891,-16.536311,-5.092994,-13.663066,-17.737481,-14.323104,-14.32317,-16.317389,-2.601095,-5.61514,-14.012851,0,0.05,0,0,0,-0.37,-0.37,-0.47,-0.53,-0.65,-0.47,-0.49,-0.53,-0.4,-0.65,-0.65,-0.47,-0.65,-0.65,-0.65,-16.413095,-108.07611,-15.533333],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.2},null,null,null,null,["HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","OCCURRENCE","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","PRESERVED_SPECIMEN","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","MACHINE_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","HUMAN_OBSERVATION","MATERIAL_SAMPLE","PRESERVED_SPECIMEN"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[12.00083,48.71197],"lng":[-108.07611,8.7583]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

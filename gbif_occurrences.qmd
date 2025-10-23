@@ -13,13 +13,14 @@ You can use this script to search for occurrences of a taxon on [GBIF](https://w
 
 ## Preliminary.
 
-You need to have registered with GBIF manually ie not using your Google, Apple , ORCID or similar ID. For this script to work, you need to know your GBIF username and password, and the email address you use to communicate with GBIF. All of these can be found on your GBIF profile. 
+You need to have registered with GBIF manually ie not using your Google, Apple , ORCID or similar ID. For this script to work, you need to know your GBIF username and password, and the email address you use to communicate with GBIF. All of these can be found on your GBIF profile.
 
-To avoid having to have these personal details hard coded into this script, you can run this [little file](here(gbif_setup.qmd)). This will ask you to enter them into a hidden .Renviron file  (which you then save and close, never to open it again) from where they can be retrieved by GBIF. All you need to do then is restart R and you should be then able o get occurrence data from GBIF without having to have them in this script.
+To avoid having to have these personal details hard coded into this script, you can run this [little file](here(gbif_setup.qmd)). This will ask you to enter them into a hidden .Renviron file (which you then save and close, never to open it again) from where they can be retrieved by GBIF. All you need to do then is restart R and you should be then able o get occurrence data from GBIF without having to have them in this script.
 
 In the following, work from the top downwards, implementing each code chunk in sequence.
 
 ### Load packages
+
 ```{r}
 library(rgbif)
 library(tidyverse)
@@ -34,7 +35,7 @@ library(tmap) # for static mapping
 What is the scientific name of the species for which you want to find occurrences?
 
 ```{r}
-scientific_name <- "Cetorhinus maximus"
+scientific_name <- "Panthera uncia"
 ```
 
 We give this to GBIF and let it look through its records to find the unique species key for this species. If it cannot find it, check if you have spelled the scientific name correctly.
@@ -51,15 +52,13 @@ Alternatively, you can find the species key on GBIF's site in various ways, for 
 
 Be as selective as you can in order to avoid getting huge downloads (there are over 3 billion records on GBIF in total!). You can select by date, area, country - many things, using one of several `pred()` functions. For help on the available keys and `pred()` functions, type `?pred` in the console pane.
 
-
-
 ```{r, cache = TRUE}
 gbif_download <- occ_download(pred("speciesKey",species_key),
                               pred_default(),
                               pred_gte("year",1900), # try also gt, lt, lte etc
                               
 # use a two letter country ID or combination of IDs
-                              pred_in("country",c("IE","GB")), 
+                              pred_in("country",c("CN", "IN", "KZ", "MN", "NP", "PK", "RU", "TJ", "UZ")),
 
 # you can omit the following lines, as I have, if you have set up your .Renviron file.
 # If you have not done that, uncomment the following three lines and add the details required.
@@ -166,6 +165,7 @@ st_write(download_sf, filepath, append = FALSE)
 #### Save as a Geopackage
 
 We save this into the subfolder output/<scientific name>
+
 ```{r}
 filepath<-here("output",scientific_name, paste0(scientific_name,".gpkg"))
 st_write(download_sf, filepath, append = FALSE)
@@ -176,13 +176,14 @@ st_write(download_sf, filepath, append = FALSE)
 The mapping code presented here just scratches the surface of what you can do - pretty much all of GIS can be done in R.
 
 ### Static map using `tmap`
+
 ```{r}
 # make some bbox magic
 bbox_new <- st_bbox(download_sf) # current bounding box
 xrange <- bbox_new$xmax - bbox_new$xmin # range of x values
 yrange <- bbox_new$ymax - bbox_new$ymin # range of y values
-bbox_new[3] <- bbox_new[3] + (0.25 * xrange) # xmax - right
-bbox_new[4] <- bbox_new[4] + (0.2 * yrange) # ymax - top
+# bbox_new[3] <- bbox_new[3] + (0.25 * xrange) # xmax - right
+# bbox_new[4] <- bbox_new[4] + (0.2 * yrange) # ymax - top
 
 bbox_new <- bbox_new |>  # take the bounding box ...
   st_as_sfc() # ... and make it a sf polygon
@@ -202,10 +203,10 @@ tm_shape(download_sf, bbox = bbox_new)+
 ```
 
 ### Dynamic map using `leaflet`
+
 ```{r}
 m <- leaflet(download_df) |>
   addTiles() |>
   addCircleMarkers(~decimalLongitude, ~decimalLatitude, label = ~basisOfRecord)
 m
 ```
-
