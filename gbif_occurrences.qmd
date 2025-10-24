@@ -9,6 +9,15 @@ execute:
   message: false
 ---
 
+tldr: If you have already entered your GBIF user name, password and email into this script, have set up your .Renviron file, then the quickest way to get what you want each time is to enter the scientific name here of the taxon you are interested in, then press Run/Run All. A few minutes later, when the GBIF download has completed, you will find in the output subfolder a csv file, shapefile and Geopackage for ocurrences of that taxon, as recorded on GBIF.
+
+```{r}
+scientific_name <- "Panthera uncia" # Don't forget to run this chunk. Press the green arrow at the top right of the chunk.
+```
+
+
+If you haven't, go through the rest of the script and implement each chunk, one chunk at a time. 
+
 You can use this script to search for occurrences of a taxon on [GBIF](https://www.gbif.org) and then download the data directly into R for subsequent analysis here in this script. You can also save the data as a csv file for later analysis or as a Shapefile or GeoPackage for inclusion as a vector point layer in a GIS application. Finally, the script generates a basic static map and a basic dynamic map
 
 ## Preliminary.
@@ -17,7 +26,6 @@ You need to have registered with GBIF manually ie not using your Google, Apple ,
 
 To avoid having to have these personal details hard coded into this script, you can run this [little file](here(gbif_setup.qmd)). This will ask you to enter them into a hidden .Renviron file (which you then save and close, never to open it again) from where they can be retrieved by GBIF. All you need to do then is restart R and you should be then able o get occurrence data from GBIF without having to have them in this script.
 
-In the following, work from the top downwards, implementing each code chunk in sequence.
 
 ### Load packages
 
@@ -34,9 +42,15 @@ library(tmap) # for static mapping
 
 What is the scientific name of the species for which you want to find occurrences?
 
+The script thinks you are looking for
+
 ```{r}
-scientific_name <- "Panthera uncia"
+scientific_name
 ```
+
+
+If that is not right, go back up to the top and enter what you want.
+
 
 We give this to GBIF and let it look through its records to find the unique species key for this species. If it cannot find it, check if you have spelled the scientific name correctly.
 
@@ -95,33 +109,6 @@ write_csv(download_df,filepath)
 ```
 
 The data are now in your R session as a data frame called `download_df`. Scroll across the columns and see what you have got.
-
-### Open the csv file in Excel
-
-Skip this section if you don't want to do this.
-
-How do I open tab-delimited CSV files downloaded from GBIF.org in Excel?
-
-If you're using Excel on a Mac
-
--   Open Excel
--   Create a new empty spreadsheet (File → New)
--   Import text file (Data → Get Data → From File → From Text/CSV)
--   Select the downloaded CSV file (e.g. 0000822-180131172636756.csv)
--   Select "Comma" as Delimiter and "Unicode (UTF-8)" as File Origin
--   Click Load
-
-If you're using Excel in Windows
-
--   Open Excel
--   Create a new empty spreadsheet (File → New)
--   Click the Data tab
--   From "Get External Data", click From text
--   Select the downloaded CSV file (e.g. 0000822-180131172636756.csv)
--   Click Import
--   Select "Delimited" as Data Type and "Unicode (UTF-8)" as File Origin
--   Click Finish
--   Click OK to import data into current sheet
 
 ## Convert data frame to spatial object in WGS84
 
