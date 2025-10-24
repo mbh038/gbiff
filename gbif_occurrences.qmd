@@ -190,12 +190,12 @@ bbox_new <- bbox_new |>  # take the bounding box ...
 
 # tmap with 2 layers
 
-tm_shape(download_sf, bbox = bbox_new)+
-  tm_basemap() +
-  tm_dots(size = .1, col = "species") +
+	tm_shape(download_sf, bbox = bbox_new)+
+	  tm_basemap(providers$Esri.WorldGrayCanvas) +
+  tm_dots(col = "blue", size = 0.2, alpha = 0.8) +
   tm_compass(position = c("left", "top"))+
   tm_scalebar(position = c("right", "top"))+ 
-  tm_borders(fill_alpha=1, lwd = 1, col = "black")+
+  tm_borders(fill_alpha=1, lwd = .1, col = "red")+
   tm_legend(legend.format = list(text.separator= "a")) +
   tm_layout(legend.position = c("right", "top"),
             frame = FALSE) +
@@ -206,7 +206,8 @@ tm_shape(download_sf, bbox = bbox_new)+
 
 ```{r}
 m <- leaflet(download_df) |>
-  addTiles() |>
+  # addTiles() |>
+  addProviderTiles(providers$Esri.WorldGrayCanvas) |>
   addCircleMarkers(~decimalLongitude, ~decimalLatitude, label = ~basisOfRecord)
 m
 ```
